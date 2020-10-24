@@ -8,8 +8,10 @@ listaOpciones1 = ["1.Muy Malo", "2.Malo",  "3.Regular", "4.Bueno", "5.Muy Bueno"
 listaOpciones2 :: [String]
 listaOpciones2 = ["Si", "No"]
 
-preguntas :: [String]
-preguntas = ["Del 1 al 5, ¿cómo han sido las medidas tomadas por el ministerio de salud?", "¿Usted cumple la cuarentena?", "¿Ha sido perjudicado por la pandemia?"]
+-- preguntas: Pares, respuestas: impares
+-- [["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]
+preguntas :: [[String]]
+preguntas = [["Del 1 al 5, ¿cómo han sido las medidas tomadas por el ministerio de salud?"], ["1.Muy Malo", "2.Malo",  "3.Regular", "4.Bueno", "5.Muy Bueno"], ["¿Usted cumple la cuarentena?"], ["Si", "No"], ["¿Ha sido perjudicado por la pandemia?"], ["Si", "No"]]
 
 respuestas :: [[Integer]]
 respuestas = [[5, 0, 0], [3, 0, 1]]
@@ -22,11 +24,31 @@ respuestas = [[5, 0, 0], [3, 0, 1]]
 append :: String ->  [String] -> [String]
 append new_element xs = xs ++ [new_element]
 
--- Crear encuestas (Agregar encuestras)
--- crearEncuestas
-
 -- Crear respuestas
+agregarRespuestas :: [String] -> IO [String]
+agregarRespuestas xs = do
+  b <- getLine
+  let x = xs ++ [b]
+  print "Desea agregar otra respuesta? (y / n)"
+  r <- getLine
+  if (r == "y" || r == "Y" || r == "s" || r == "S") then do
+    agregarRespuestas x
+  else
+    return x
 
+-- Crear encuestas (Agregar encuestras)
+agregarPregunta :: [[String]] -> IO [[String]]
+agregarPregunta xs = do
+  b <- getLine
+  let x = xs ++ [[b]]
+  y <- agregarRespuestas []
+  print "Desea agregar otra pregunta? (y / n)"
+  r <- getLine
+  let z = x ++ [y]
+  if (r == "y" || r == "Y" || r == "s" || r == "S") then do
+    agregarPregunta z
+  else
+    return z
 
 -- Responder encuestras
 -- @param n: cantidad de cuestionarios a responder
@@ -62,8 +84,11 @@ menu a = do
   opciones1
   r <- getLine
   if (r == "1") then do
+    print "Agregue una pregunta al cuestionario"
     b <- getLine
     print ("Escogio " ++ b)
+    print "Agregue una respuesta al cuestionario"
+    let x = agregarRespuestas []
     menu (a)
   else if (r == "2") then do
     b <- getLine
@@ -76,18 +101,9 @@ menu a = do
     --menu (append b a)
   else do 
   -- b <- input
-  menu (a)
+    menu (a)
   
 
-prompt :: IO ()
-prompt = do
-    -- get input from user
-    l <- getLine
-    -- unless will execute its block if the condition is False
-    unless (l == "q") $ do
-        -- echo back to the user
-        putStrLn $ "You entered: " ++ l
-        prompt
 ----------------------- Main -----------------------
 main :: IO ()
 main = do
