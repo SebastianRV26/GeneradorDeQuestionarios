@@ -1,32 +1,17 @@
-import Data.IORef --para mutar 
+
 import Control.Monad 
 
------------------------ Global constants  -----------------------
-listaOpciones1 :: [String]
-listaOpciones1 = ["1.Muy Malo", "2.Malo",  "3.Regular", "4.Bueno", "5.Muy Bueno"]
+------------- Formato de las preguntas  -----------------
+-- [[[preguntas: Pares], [respuestas: impares]]]
+-- [[["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]]
 
-listaOpciones2 :: [String]
-listaOpciones2 = ["Si", "No"]
-
--- preguntas: Pares, respuestas: impares
--- [["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]
-preguntas :: [[String]]
-preguntas = [["Del 1 al 5, ¿cómo han sido las medidas tomadas por el ministerio de salud?"], ["1.Muy Malo", "2.Malo",  "3.Regular", "4.Bueno", "5.Muy Bueno"], ["¿Usted cumple la cuarentena?"], ["Si", "No"], ["¿Ha sido perjudicado por la pandemia?"], ["Si", "No"]]
-
-respuestas :: [[Integer]]
-respuestas = [[5, 0, 0], [3, 0, 1]]
 ----------------------- Functions -----------------------
 
--- Agregar un elemento a una lista 
--- @param xs: lista
--- @param new_element: nuevo elemento
--- @return xs: lista
-append :: String ->  [String] -> [String]
-append new_element xs = xs ++ [new_element]
-
--- Crear respuestas
+-- Función recuersiva para agregar respuestas
+-- @param xs: lista 
 agregarRespuestas :: [String] -> IO [String]
 agregarRespuestas xs = do
+  putStr "\t Ingresanndo respuesta\n"
   b <- getLine
   let x = xs ++ [b]
   print "Desea agregar otra respuesta? (y / n)"
@@ -36,23 +21,45 @@ agregarRespuestas xs = do
   else
     return x
 
--- Crear encuestas (Agregar encuestras)
-agregarPregunta :: [[String]] -> IO [[String]]
+-- Función recuersiva para agregar preguntas
+-- @param xs: lista 
+agregarPregunta :: [[[String]]] -> IO [[[String]]]
 agregarPregunta xs = do
+  putStr "\t Ingresanndo pregunta\n"
   b <- getLine
-  let x = xs ++ [[b]]
+  let x = xs ++ [[[b]]]
   y <- agregarRespuestas []
   print "Desea agregar otra pregunta? (y / n)"
   r <- getLine
-  let z = x ++ [y]
+  let z = x ++ [[y]]
   if (r == "y" || r == "Y" || r == "s" || r == "S") then do
     agregarPregunta z
   else
     return z
 
--- Responder encuestras
+-- Función recuersiva para agregar la cantidad de encuestas solicitadas por el usuario
+-- @param num: cantidad de encuestas solicitadas por el usuario.
+agregarEncuesta :: Int -> [[[String]]] -> IO [[[String]]]
+agregarEncuesta num xs = do
+  --if (num == 0) then do
+    -- responderEncuestaManual xs
+  --else do
+    putStr "\t Creando cuestionario\n"
+    b <- getLine
+    let x = xs ++ [[[b]]]
+    y <- agregarPregunta []
+    print "Desea agregar otro cuestionario? (y / n)"
+    r <- getLine
+    let z = x ++ y
+    if (r == "y" || r == "Y" || r == "s" || r == "S") then do
+      agregarEncuesta (num-1) z
+    else
+      return z
+
+-- Responder encuestras manual
 -- @param n: cantidad de cuestionarios a responder
--- responderEncuestas:: Int 
+--responderEncuestaManual:: [[[String]]] -> [[Int]]
+--responderEncuestaManual xs = do
 
 -- Responder respuestas automáticas
 -- responderEncuestasAutomatico
@@ -73,48 +80,71 @@ estadistica1 xs numQuestion = map (\x -> x !! numQuestion) xs
   --(filter (==numQuestion) xs)
 
 -- Menús
-opciones1 :: IO ()
-opciones1 = do
-  print "1. Agregar preguntas al cuestionario"
-  print "2. Responder de forma automatica"
-  print "3. Responder de forma manual"
+-- menuEstadisticas :: [[Int]] -> IO
 
-menu :: [String] -> IO [String]
-menu a = do
-  opciones1
+
+opciones2 :: IO ()
+opciones2 = do
+  print "1. Responder de forma automatica"
+  print "2. Responder de forma manual"
+  print "3. Atras (Menu inicio)"
+
+menu2 :: [[[String]]] -> IO [[[String]]]
+menu2 xs = do
+  putStr "\t Menu\n"
+  opciones2
+  r <- getLine
+  if (r == "1") then do
+    print "Respondiendo de forma automatica"
+    menu2(xs)
+  else if (r == "2") then do
+    print ("Escogio2 Responder de forma manual")
+    --let x = responderEncuestaManual xs 
+    -- menuEstadisticas x
+    menu2 (xs) -- del
+  else if (r == "3") then do
+    menu0 (xs)
+  else do 
+    menu2 (xs)
+
+opciones0 :: IO ()
+opciones0 = do
+  print "1. Crear un cuestionario"
+  print "2. Estadisticas"
+  print "3. Salir"
+  print "4. Imprimir cuestionarios"
+
+menu0 :: [[[String]]] -> IO [[[String]]]
+menu0 a = do
+  putStr "\t Menu de inicio\n"
+  opciones0
   r <- getLine
   if (r == "1") then do
     print "Agregue una pregunta al cuestionario"
-    b <- getLine
-    print ("Escogio " ++ b)
-    print "Agregue una respuesta al cuestionario"
-    let x = agregarRespuestas []
-    menu (a)
+    b <- agregarPregunta []
+    menu0 (a ++ b)
   else if (r == "2") then do
-    b <- getLine
-    print ("Escogio2 " ++ b)
-    menu (a)
+    print ("Escogio2 Estadisticas")
+    -- Estadisticas()----------------------
+    fin
   else if (r == "3") then do
-    b <- getLine
-    print ("Escogio3 " ++ b)
-    menu (a)
-    --menu (append b a)
+    print ("Escogio3 Salir")
+    fin
+  else if (r == "4") then do
+    print (a)
+    menu0 (a)
   else do 
-  -- b <- input
-    menu (a)
-  
+    menu0 (a)
 
 ----------------------- Main -----------------------
 main :: IO ()
 main = do
-  --ref <- newIORef ([] :: [String])
-  --modifyIORef ref (append "XD")
-
-  -- name <- input
-  -- estadistica1 [1,5,3,1,6]  
-  --modifyIORef ref (append name)
-  --readIORef ref >>= print
-  --menu 1
-  print ""
--- Datos de prueba
+  menu0 []
+-- Datos quemados
 -- estadistica1 respuestas 0 -- usa map y lambda
+  print ""
+
+fin :: IO [[[String]]]
+fin = do
+  print ("Fin del programa")
+  return []
