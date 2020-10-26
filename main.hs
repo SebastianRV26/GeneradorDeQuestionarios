@@ -2,6 +2,9 @@
 ------------- Formato de las preguntas  -----------------
 -- [[[preguntas: Pares], [respuestas: impares]]]
 -- [[["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]]
+e :: [[[String]]]
+e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
+
 ----------------------- Functions -----------------------
 
 -- Función recuersiva para agregar respuestas
@@ -101,14 +104,14 @@ responderEncuestaManualAux listAux xs = do
 -- Responder encuestras manual.
 -- @param xs: lista de encuestas.
 -- @param respuestas: lista de respuestas.
-responderEncuestaManual:: [[[String]]] -> [[String]] -> IO [[String]]
+responderEncuestaManual:: [[[String]]] -> [[[String]]] -> IO [[[String]]]
 responderEncuestaManual xs respuestas = do
   print ("Ingrese el numero de la encuesta que desea responder ")
   r1 <- getLine
   let index = read r1 :: Int
   x <- responderEncuestaManualAux (xs !! index) [] 
   let encuesta = show index
-  return (respuestas ++ ([[encuesta]] ++ x))
+  return (respuestas ++ [([[encuesta]] ++ x)])
 
 --generarRandom :: Int -> Int
 --generarRandom len = 
@@ -126,24 +129,24 @@ responderEncuestaAutomaticaAux listAux xs = do
       let index = read pos ::Int
       let lr = head listAux !! index
       let lra = (xs ++ [[lr]])
-      responderEncuestaManualAux (tail listAux) lra
+      responderEncuestaAutomaticaAux (tail listAux) lra
     else do
       print (head listAux !! 0)
-      responderEncuestaManualAux (tail listAux) xs
+      responderEncuestaAutomaticaAux (tail listAux) xs
   else 
     return (xs)
 
 -- Responder encuestras de forma automática.
 -- @param xs: lista de encuestas.
 -- @param respuestas: lista de respuestas.
-responderEncuestaAutomatica:: [[[String]]] -> [[String]] -> IO [[String]]
+responderEncuestaAutomatica:: [[[String]]] -> [[[String]]] -> IO [[[String]]]
 responderEncuestaAutomatica xs respuestas = do
   print ("Ingrese el numero de la encuesta que desea responder ")
   r1 <- getLine
   let index = read r1 :: Int
-  x <- responderEncuestaManualAux (xs !! index) [] 
+  x <- responderEncuestaAutomaticaAux (xs !! index) [] 
   let encuesta = show index
-  return (respuestas ++ ([[encuesta]] ++ x))
+  return (respuestas ++ [([[encuesta]] ++ x)])
 
 
 -- Estadística
@@ -170,7 +173,7 @@ opciones3 = do
   print "3. Estadística 3"
   print "4. Atras (Menu principal)"
 
-menuEstadisticas :: [[[String]]] -> [[String]] -> IO ()
+menuEstadisticas :: [[[String]]] -> [[[String]]] -> IO ()
 menuEstadisticas xs respuestas = do
   putStr "\t Menu encuestas\n"
   opciones3
@@ -205,18 +208,19 @@ opciones2 = do
 -- @param xs: lista de encuestas.
 -- @param respuestas: lista de opciones a respondidas.
 -- @param encuestas: encuestas respondidas.
-menu2 :: [[[String]]] -> [[String]] -> IO [[[String]]]
+menu2 :: [[[String]]] -> [[[String]]] -> IO [[[String]]]
 menu2 xs respuestas = do
   putStr "\t Menu\n"
   opciones2
   r <- getLine
   if (r == "1") then do
     print "Respondiendo de forma automatica"
-    menu2 xs respuestas
+    x <- responderEncuestaAutomatica xs respuestas
+    menu2 xs x
   else if (r == "2") then do
     print ("Escogio2 Responder de forma manual")
-    x <- responderEncuestaManual xs respuestas
-    menu2 xs x -- del
+    y <- responderEncuestaManual xs respuestas
+    menu2 xs y -- del
   else if (r == "3") then do
     menu0 xs respuestas
   else do 
@@ -236,7 +240,7 @@ opciones0 = do
 -- @param xs: lista de encuestas.
 -- @param respuestas: lista de opciones a respondidas.
 -- @param encuestas: encuestas respondidas.
-menu0 :: [[[String]]] -> [[String]] -> IO [[[String]]]
+menu0 :: [[[String]]] -> [[[String]]] -> IO [[[String]]]
 menu0 a respuestas = do
   putStr "\t Menu de inicio\n"
   opciones0
@@ -268,11 +272,10 @@ menu0 a respuestas = do
 -- Función principal, para ejecutar el proyecto con y sin datos iniciales
 main :: IO ()
 main = do
-  menu0 [] []
 -- Datos quemados
 -- estadistica1 respuestas 0 -- usa map y lambda
-  let e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
   --let resp = [ [ [0, 0], [0,0]], [] ]
+  menu0 e []
   print ""
   
   -- [[]]
