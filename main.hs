@@ -1,11 +1,7 @@
 
-import Control.Monad 
-
 ------------- Formato de las preguntas  -----------------
 -- [[[preguntas: Pares], [respuestas: impares]]]
 -- [[["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]]
-e :: [[[String]]]
-e = [[["p1"],["r1","r2"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
 ----------------------- Functions -----------------------
 
 -- Función recuersiva para agregar respuestas
@@ -68,7 +64,7 @@ agregarPregunta xs = do
 agregarEncuesta :: Int -> [[[String]]] -> IO [[[String]]]
 agregarEncuesta num xs = do
   --if (num == 0) then do
-    -- responderEncuestaManual xs
+    -- menu2 xs
   --else do
     putStr "\t Creando cuestionario\n"
     b <- getLine
@@ -82,54 +78,73 @@ agregarEncuesta num xs = do
     else
       return z
 
--- Función que retorna una lista de índices
-positions :: Int -> [Int]
-positions len = [0..len]
-
 -- Auxiliar de Responder encuestras manual.
 -- @param pos: par o impar.
 -- @param xs: lista.
-responderEncuestaManualAux :: Int -> [String] -> IO String
-responderEncuestaManualAux pos list = do
-  if (even pos) then do
-    let x = (list !! 0)
-    print x
-    return ("")
-  else do
-    -- imprimir opciones
-    x <- getLine
-    --let y = read x::Int
-    return (x)
+responderEncuestaManualAux :: [[String]] -> [[String]] -> IO [[String]]
+responderEncuestaManualAux listAux xs = do
+  if ((null listAux) == False) then do
+    if (length (head listAux) /= 1) then do
+      print ("Ingrese la posicion de su respuesta")
+      print (head listAux)
+      pos <- getLine
+      let index = read pos ::Int
+      let lr = head listAux !! index
+      let lra = (xs ++ [[lr]])
+      responderEncuestaManualAux (tail listAux) lra
+    else do
+      print (head listAux !! 0)
+      responderEncuestaManualAux (tail listAux) xs
+  else 
+    return (xs)
 
---mostrarMap :: [IO String] -> Int-> IO [String]
---mostrarMap xs num = do
---  if (num == (length xs)) then 
---    return []
---  else do
---    d <- (mostrarMap xs (num + 1))
---    --[xs !! num] ++ d
+-- Responder encuestras manual.
+-- @param xs: lista de encuestas.
+-- @param respuestas: lista de respuestas.
+responderEncuestaManual:: [[[String]]] -> [[String]] -> IO [[String]]
+responderEncuestaManual xs respuestas = do
+  print ("Ingrese el numero de la encuesta que desea responder ")
+  r1 <- getLine
+  let index = read r1 :: Int
+  x <- responderEncuestaManualAux (xs !! index) [] 
+  let encuesta = show index
+  return (respuestas ++ ([[encuesta]] ++ x))
 
+--generarRandom :: Int -> Int
+--generarRandom len = 
 
--- Responder encuestras manual
--- @param n: cantidad de cuestionarios a responder
---responderEncuestaManual:: [[[String]]] -> [[Int]] -> [Int] -> IO [[Int]]
---responderEncuestaManual xs respuestas encuestas = do
---  print ("Ingrese el numero de la encuesta que desea responder ")
---  r1 <- getLine
---  let elem = read r1 :: Int
---  let len = (length (xs !! elem) - 1)
---  let pos = positions len
---  let pares = filter (\y -> even y) pos
---  let impares = filter (\y -> odd y) pos
---  let z = zip [0..len] (e !! elem)
---  let f = map (\ (x,y) -> responderEncuestaManualAux x y) z
---  ff <- f
---  return (respuestas ++ [f])
+-- Auxiliar de Responder encuestras automáticas.
+-- @param pos: par o impar.
+-- @param xs: lista.
+responderEncuestaAutomaticaAux :: [[String]] -> [[String]] -> IO [[String]]
+responderEncuestaAutomaticaAux listAux xs = do
+  if ((null listAux) == False) then do
+    if (length (head listAux) /= 1) then do
+      print ("Ingrese la posicion de su respuesta")
+      print (head listAux)
+      pos <- getLine
+      let index = read pos ::Int
+      let lr = head listAux !! index
+      let lra = (xs ++ [[lr]])
+      responderEncuestaManualAux (tail listAux) lra
+    else do
+      print (head listAux !! 0)
+      responderEncuestaManualAux (tail listAux) xs
+  else 
+    return (xs)
 
-  
+-- Responder encuestras de forma automática.
+-- @param xs: lista de encuestas.
+-- @param respuestas: lista de respuestas.
+responderEncuestaAutomatica:: [[[String]]] -> [[String]] -> IO [[String]]
+responderEncuestaAutomatica xs respuestas = do
+  print ("Ingrese el numero de la encuesta que desea responder ")
+  r1 <- getLine
+  let index = read r1 :: Int
+  x <- responderEncuestaManualAux (xs !! index) [] 
+  let encuesta = show index
+  return (respuestas ++ ([[encuesta]] ++ x))
 
--- Responder respuestas automáticas
--- responderEncuestasAutomatico
 
 -- Estadística
 -- 3 variables de interes
@@ -142,12 +157,42 @@ responderEncuestaManualAux pos list = do
 --calc1 :: [Integer] -> [Integer]
 --calc1 xs = map 
 
-estadistica1 :: [[Integer]] -> Int -> [Integer]
-estadistica1 xs numQuestion = map (\x -> x !! numQuestion) xs
+-- Sacar la media de todas las preguntas 
+--estadistica1 :: [[[String]]] -> [[Int]] -> Int -> IO ()
+--estadistica1 xs respuestas numQuestion = map (\x -> x !! numQuestion) respuestas
   --(filter (==numQuestion) xs)
 
 -- Menús
--- menuEstadisticas :: [[Int]] -> IO
+opciones3 :: IO ()
+opciones3 = do
+  print "1. Estadística 1 el promedio de las preguntas"
+  print "2. Estadística 2"
+  print "3. Estadística 3"
+  print "4. Atras (Menu principal)"
+
+menuEstadisticas :: [[[String]]] -> [[String]] -> IO ()
+menuEstadisticas xs respuestas = do
+  putStr "\t Menu encuestas\n"
+  opciones3
+  r <- getLine
+  if (r == "1") then do
+    print "Estadística 1"
+--    estadistica1 respuestas
+    menuEstadisticas xs respuestas
+  else if (r == "2") then do
+    print "Estadística 2"
+--    estadistica1 respuestas
+    menuEstadisticas xs respuestas
+  else if (r == "3") then do
+    print "Estadística 3"
+--    estadistica1 respuestas
+    menuEstadisticas xs respuestas
+  else if (r == "4") then do
+    print "Atras"
+    menu0 xs respuestas
+    print ""
+  else
+    menuEstadisticas xs respuestas
 
 -- Mostrar opciones a realizar en el segundo menú.
 opciones2 :: IO ()
@@ -160,22 +205,22 @@ opciones2 = do
 -- @param xs: lista de encuestas.
 -- @param respuestas: lista de opciones a respondidas.
 -- @param encuestas: encuestas respondidas.
-menu2 :: [[[String]]] -> [[Int]] -> [Int] -> IO [[[String]]]
-menu2 xs respuestas encuestas = do
+menu2 :: [[[String]]] -> [[String]] -> IO [[[String]]]
+menu2 xs respuestas = do
   putStr "\t Menu\n"
   opciones2
   r <- getLine
   if (r == "1") then do
     print "Respondiendo de forma automatica"
-    menu2 xs respuestas encuestas
+    menu2 xs respuestas
   else if (r == "2") then do
     print ("Escogio2 Responder de forma manual")
-    --let x = responderEncuestaManual xs 
-    menu2 xs respuestas encuestas -- del
+    x <- responderEncuestaManual xs respuestas
+    menu2 xs x -- del
   else if (r == "3") then do
-    menu0 xs respuestas encuestas
+    menu0 xs respuestas
   else do 
-    menu2 xs respuestas encuestas
+    menu2 xs respuestas
 
 -- Mostrar opciones a realizar en el primer menú.
 opciones0 :: IO ()
@@ -185,44 +230,52 @@ opciones0 = do
   print "3. Estadisticas"
   print "4. Salir"
   print "5. Imprimir cuestionarios"
+  print "6. Imprimir respuestas"
 
 -- Menú principal donde se muestran las opciones iniciales.
 -- @param xs: lista de encuestas.
 -- @param respuestas: lista de opciones a respondidas.
 -- @param encuestas: encuestas respondidas.
-menu0 :: [[[String]]] -> [[Int]] -> [Int] -> IO [[[String]]]
-menu0 a respuestas encuestas = do
+menu0 :: [[[String]]] -> [[String]] -> IO [[[String]]]
+menu0 a respuestas = do
   putStr "\t Menu de inicio\n"
   opciones0
   r <- getLine
   if (r == "1") then do
     print "Agregue una pregunta al cuestionario"
     b <- agregarPregunta []
-    menu0 (a ++ [b]) respuestas encuestas
+    menu0 (a ++ [b]) respuestas
   else if (r == "2") then do
-    menu2 a respuestas encuestas
+    menu2 a respuestas
   else if (r == "3") then do
     print ("Escogio3 Estadisticas")
     -- Estadisticas()----------------------
-    fin
+    menuEstadisticas a respuestas
+    menu0 a respuestas
   else if (r == "4") then do
     print ("Escogio3 Salir")
     fin
   else if (r == "5") then do
     print (a)
-    menu0 a respuestas encuestas
+    menu0 a respuestas
+  else if (r == "6") then do
+    print (respuestas)
+    menu0 a respuestas
   else do 
-    menu0 a respuestas encuestas
+    menu0 a respuestas
 
 ----------------------- Main -----------------------
 -- Función principal, para ejecutar el proyecto con y sin datos iniciales
 main :: IO ()
 main = do
-  menu0 [] [] []
+  menu0 [] []
 -- Datos quemados
 -- estadistica1 respuestas 0 -- usa map y lambda
+  let e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
+  --let resp = [ [ [0, 0], [0,0]], [] ]
   print ""
-
+  
+  -- [[]]
 -- Cuando se finaliza el programa.
 fin :: IO [[[String]]]
 fin = do
