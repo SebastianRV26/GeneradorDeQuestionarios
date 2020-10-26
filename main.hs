@@ -84,7 +84,7 @@ agregarEncuesta num xs = do
 -- Auxiliar de Responder encuestras manual.
 -- @param pos: par o impar.
 -- @param xs: lista.
-responderEncuestaManualAux :: [[String]] -> [[String]] -> IO [[String]]
+responderEncuestaManualAux :: [[String]] -> [String] -> IO [String]
 responderEncuestaManualAux listAux xs = do
   if ((null listAux) == False) then do
     if (length (head listAux) /= 1) then do
@@ -93,7 +93,7 @@ responderEncuestaManualAux listAux xs = do
       pos <- getLine
       let index = read pos ::Int
       let lr = head listAux !! index
-      let lra = (xs ++ [[lr]])
+      let lra = (xs ++ [lr])
       responderEncuestaManualAux (tail listAux) lra
     else do
       print (head listAux !! 0)
@@ -111,7 +111,13 @@ responderEncuestaManual xs respuestas = do
   let index = read r1 :: Int
   x <- responderEncuestaManualAux (xs !! index) [] 
   let encuesta = show index
-  return (respuestas ++ [([[encuesta]] ++ x)])
+
+  print ("Desea agregar otra pregunta? (y / n)")
+  r2 <- getLine
+  if (r2 == "y" || r2 == "Y" || r2 == "s" || r2 == "S") then do
+    responderEncuestaManual xs (respuestas ++ [[([encuesta] ++ x)]])
+  else
+    return (respuestas ++ [[([encuesta] ++ x)]])
 
 --generarRandom :: Int -> Int
 --generarRandom len = 
@@ -119,7 +125,7 @@ responderEncuestaManual xs respuestas = do
 -- Auxiliar de Responder encuestras automáticas.
 -- @param pos: par o impar.
 -- @param xs: lista.
-responderEncuestaAutomaticaAux :: [[String]] -> [[String]] -> IO [[String]]
+responderEncuestaAutomaticaAux :: [[String]] -> [String] -> IO [String]
 responderEncuestaAutomaticaAux listAux xs = do
   if ((null listAux) == False) then do
     if (length (head listAux) /= 1) then do
@@ -128,7 +134,7 @@ responderEncuestaAutomaticaAux listAux xs = do
       pos <- getLine
       let index = read pos ::Int
       let lr = head listAux !! index
-      let lra = (xs ++ [[lr]])
+      let lra = (xs ++ [lr])
       responderEncuestaAutomaticaAux (tail listAux) lra
     else do
       print (head listAux !! 0)
@@ -146,7 +152,12 @@ responderEncuestaAutomatica xs respuestas = do
   let index = read r1 :: Int
   x <- responderEncuestaAutomaticaAux (xs !! index) [] 
   let encuesta = show index
-  return (respuestas ++ [([[encuesta]] ++ x)])
+  print ("Desea agregar otra pregunta? (y / n)")
+  r2 <- getLine
+  if (r2 == "y" || r2 == "Y" || r2 == "s" || r2 == "S") then do
+    responderEncuestaAutomatica xs (respuestas ++ [[([encuesta] ++ x)]])
+  else
+    return (respuestas ++ [[([encuesta] ++ x)]])
 
 
 -- Estadística
@@ -274,8 +285,9 @@ main :: IO ()
 main = do
 -- Datos quemados
 -- estadistica1 respuestas 0 -- usa map y lambda
-  --let resp = [ [ [0, 0], [0,0]], [] ]
+  -- menu0 [] []
   menu0 e []
+  
   print ""
   
   -- [[]]
