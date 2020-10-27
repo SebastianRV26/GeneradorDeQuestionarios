@@ -6,8 +6,9 @@
 e :: [[[String]]]
 e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
 
-resp :: [[[String]]]
-resp = [[["0", "r5", "r2"]],[["0","r4", "r1"]]]
+r :: [[[String]]]
+r = [[["0","r4","r1"]],[["0","r1","r1"]], [["0","r4","r1"]], [["0","r3","r1"]]]
+
 ----------------------- Functions -----------------------
 
 -- Función recuersiva para agregar respuestas
@@ -115,7 +116,7 @@ responderEncuestaManual xs respuestas = do
   x <- responderEncuestaManualAux (xs !! index) [] 
   let encuesta = show index
 
-  print ("Desea agregar otra pregunta? (y / n)")
+  print ("Desea responder otra encuesta? (y / n)")
   r2 <- getLine
   if (r2 == "y" || r2 == "Y" || r2 == "s" || r2 == "S") then do
     responderEncuestaManual xs (respuestas ++ [[([encuesta] ++ x)]])
@@ -155,7 +156,7 @@ responderEncuestaAutomatica xs respuestas = do
   let index = read r1 :: Int
   x <- responderEncuestaAutomaticaAux (xs !! index) [] 
   let encuesta = show index
-  print ("Desea agregar otra pregunta? (y / n)")
+  print ("Desea responder otra encuesta? (y / n)")
   r2 <- getLine
   if (r2 == "y" || r2 == "Y" || r2 == "s" || r2 == "S") then do
     responderEncuestaAutomatica xs (respuestas ++ [[([encuesta] ++ x)]])
@@ -172,9 +173,17 @@ validar xs encuesta = do
   else
     []
 
--- [[["0","r5","r2"],["0","r4","r1"]]] -> [["r5","r2"],["r4","r1"]]
+-- [[["0","r4","r1"]],[["0","r1","r1"]], [["0","r4","r1"]], [["0","r3","r1"]]] -> [["r4","r1"],["r1","r1"],["r4","r1"],["r3","r1"]]
 listaRespuestasDeEncuesta :: [[[String]]] -> String -> [[String]]
-listaRespuestasDeEncuesta xs encuesta = map (\x -> validar x encuesta) xs
+listaRespuestasDeEncuesta xs encuesta = do
+  let y = map (\x -> validar x encuesta) xs
+  filter (\x -> x/=[]) y
+
+-- PENDIENTE
+-- [["r5","r2"],["r4","r1"]] -> [["r5","r4"],["r2","r1"]] 
+--unirLista :: [[String]] -> [[String]]
+--unirLista xs = do
+   
 
 -- [["r5","r2"],["r4","r1"]] -> 0 -> ["r5","r4"]
 respuestasDePregunta :: [[String]] -> Int -> [String]
@@ -198,53 +207,93 @@ apariciones xs element = do
     else do
       0 + (apariciones (tail xs) element)
 
-estadistica1Aux :: [String] -> [String] -> IO ()
-estadistica1Aux xs pos = do
-  let len = apariciones xs (head pos)
-  let media = (div len (length xs))
-  let m = show media
-  print ("La media del elemento " ++ (head pos) ++ " es " ++ m)
-  estadistica1Aux xs (tail pos) -- Llamar
+aparece :: [String] -> String -> Bool
+aparece xs element = do
+  if (xs == []) then do
+    False
+  else do
+    if ((head xs) ==  element) then do
+      True
+    else do
+      (aparece (tail xs) element)
 
--- El promedio de la cantidad de preguntas de una encuesta
--- Cuantas veces se respondió la encuesta
+percent :: Int -> Int -> Float
+percent x y =   100 * ( a / b )
+  where a = fromIntegral x :: Float
+        b = fromIntegral y :: Float
+
+estadistica1Aux :: [String] -> [String] -> [String]-> IO ()
+estadistica1Aux xs pos yaesta = do
+  if (pos == []) then do
+    putStr ""
+  else do
+    let ap = apariciones xs (head pos)
+    let len = (length xs)
+    let media = percent ap len
+    let m = show media
+    if (aparece yaesta (head pos) == False) then do
+      print ("El promedio de la respuesta " ++ (head pos) ++ " es " ++ m ++ "%")
+      estadistica1Aux xs (tail pos) (yaesta ++ [(head pos)])
+    else
+      estadistica1Aux xs (tail pos) (yaesta ++ [(head pos)])
 
 -- Sacar la media de todas las preguntas 
---estadistica1 :: [[String]] -> IO ()
---estadistica1 respuestas = map
-  --(filter (==numQuestion) xs)
+estadistica1 :: [[String]] -> Int -> IO ()
+estadistica1 respuestas index =  do
+  if (respuestas == []) then do
+    putStr ""
+  else do
+    let p = show (index + 1)
+    print ("Pregunta " ++ p)
+    estadistica1Aux (respuestas !! index) (respuestas !! index) []
+    if ((index + 1) == (length respuestas)) then
+      putStr ""
+    else
+      -- if (aparece )
+      estadistica1 respuestas (index + 1)
+
+-- cantidad de veces respondida una encuesta
+estadistica2 :: [[[String]]] -> String -> IO ()
+estadistica2 xs encuest = do
+  let y = length (listaRespuestasDeEncuesta xs encuest)
+  let m = show y
+  print ("La encuesta " ++ encuest ++ " ha sido respondida " ++ m ++ " veces")
+
+-- cantidad de encuestas creadas
+estadistica3 :: [[[String]]] -> IO ()
+estadistica3 xs = do
+  let y = show (length xs)
+  print ("Actualmente existen " ++ y ++ "encuestas creadas")
 
 
 -- Menús
 opciones3 :: IO ()
 opciones3 = do
-  print "1. Estadística 1 el promedio de respuesta de las preguntas"
-  print "2. Estadística 2"
-  print "3. Estadística 3"
+  print "1. Estadistica 1 el promedio de respuesta de las preguntas"
+  print "2. Estadistica 2 cantidad de veces respondida una encuesta"
+  print "3. Estadistica 3 cantidad de encuestas creadas"
   print "4. Atras (Menu principal)"
 
 menuEstadisticas :: [[[String]]] -> [[[String]]] -> IO ()
 menuEstadisticas xs respuestas = do
-  putStr "\t Menu encuestas\n"
+  putStr "\t Menu estadisticas\n"
   opciones3
   r <- getLine
   if (r == "1") then do
-    print "Estadística 1 el promedio de respuesta de las preguntas"
+    print "Estadistica 1 el promedio de respuesta de las preguntas"
     print ("Ingrese la encuesta a utilizar")
     re <- getLine
---    estadistica1 (listaRespuestasDeEncuesta xs respuestas re)
+    estadistica1 (listaRespuestasDeEncuesta respuestas re) 0
     menuEstadisticas xs respuestas
   else if (r == "2") then do
-    print "Estadística 2"
+    print "Estadistica 2 cantidad de veces respondida una encuesta"
     print ("Ingrese la encuesta a utilizar")
     re <- getLine
---    estadistica1 respuestas
+    estadistica2 respuestas re
     menuEstadisticas xs respuestas
   else if (r == "3") then do
-    print "Estadística 3"
-    print ("Ingrese la encuesta a utilizar")
-    re <- getLine
---    estadistica1 respuestas
+    print "Estadistica 3 cantidad de encuestas creadas"
+    estadistica3 respuestas
     menuEstadisticas xs respuestas
   else if (r == "4") then do
     print "Atras"
