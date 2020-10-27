@@ -1,5 +1,4 @@
 
-
 ------------- Formato de las preguntas  -----------------
 -- [[[preguntas: Pares], [respuestas: impares]]]
 -- [[["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]]
@@ -7,7 +6,7 @@ e :: [[[String]]]
 e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
 
 r :: [[[String]]]
-r = [[["0","r4","r1"]],[["0","r1","r1"]], [["0","r4","r1"]], [["0","r3","r1"]]]
+r = [[["0","r4","r2"]],[["0","r1","r3"]], [["0","r4","r1"]], [["0","r3","r1"]], [["0","r5","r4"]]]
 
 ----------------------- Functions -----------------------
 
@@ -134,8 +133,8 @@ responderEncuestaAutomaticaAux listAux xs = do
   if ((null listAux) == False) then do
     if (length (head listAux) /= 1) then do
       print ("Ingrese la posicion de su respuesta")
-      print (head listAux)
-      pos <- getLine
+      print ("0")
+      let pos = "0"
       let index = read pos ::Int
       let lr = head listAux !! index
       let lra = (xs ++ [lr])
@@ -163,7 +162,6 @@ responderEncuestaAutomatica xs respuestas = do
   else
     return (respuestas ++ [[([encuesta] ++ x)]])
 
-
 -- Estadística
 -- 3 variables de interes
 validar :: [[String]] -> String -> [String]
@@ -179,12 +177,12 @@ listaRespuestasDeEncuesta xs encuesta = do
   let y = map (\x -> validar x encuesta) xs
   filter (\x -> x/=[]) y
 
--- PENDIENTE
 -- [["r5","r2"],["r4","r1"]] -> [["r5","r4"],["r2","r1"]] 
---unirLista :: [[String]] -> [[String]]
---unirLista xs = do
+unirLista :: [[String]] -> [[String]]
+unirLista xs = do 
+  let z = zip [0..((length (head xs)) -1)] xs
+  map (\(x, y) -> respuestasDePregunta xs x) z
    
-
 -- [["r5","r2"],["r4","r1"]] -> 0 -> ["r5","r4"]
 respuestasDePregunta :: [[String]] -> Int -> [String]
 respuestasDePregunta xs index = map (\x -> (x !! index)) xs
@@ -194,8 +192,6 @@ respuestasDePregunta xs index = map (\x -> (x !! index)) xs
 -- @param numQuestion: numero de la pregunta
 -- @return 
 
---calc1 :: [Integer] -> [Integer]
---calc1 xs = map 
 -- cuantas veces aparece un elemento en una lista
 apariciones :: [String] -> String -> Int
 apariciones xs element = do
@@ -207,6 +203,7 @@ apariciones xs element = do
     else do
       0 + (apariciones (tail xs) element)
 
+-- Si aparece un elemento en la lista
 aparece :: [String] -> String -> Bool
 aparece xs element = do
   if (xs == []) then do
@@ -217,11 +214,13 @@ aparece xs element = do
     else do
       (aparece (tail xs) element)
 
+-- Calcular el promedio
 percent :: Int -> Int -> Float
 percent x y =   100 * ( a / b )
   where a = fromIntegral x :: Float
         b = fromIntegral y :: Float
 
+-- Auxiliar de estadistica1
 estadistica1Aux :: [String] -> [String] -> [String]-> IO ()
 estadistica1Aux xs pos yaesta = do
   if (pos == []) then do
@@ -252,19 +251,26 @@ estadistica1 respuestas index =  do
       -- if (aparece )
       estadistica1 respuestas (index + 1)
 
--- cantidad de veces respondida una encuesta
+-- Cantidad de veces respondida una encuesta
 estadistica2 :: [[[String]]] -> String -> IO ()
 estadistica2 xs encuest = do
   let y = length (listaRespuestasDeEncuesta xs encuest)
   let m = show y
   print ("La encuesta " ++ encuest ++ " ha sido respondida " ++ m ++ " veces")
 
--- cantidad de encuestas creadas
+-- Cantidad de encuestas creadas
 estadistica3 :: [[[String]]] -> IO ()
 estadistica3 xs = do
   let y = show (length xs)
-  print ("Actualmente existen " ++ y ++ "encuestas creadas")
+  print ("Actualmente existen " ++ y ++ " encuestas creadas")
 
+-- Cantidad de preguntas que contiene una encuesta
+estadistica4 :: [[[String]]] -> String -> IO ()
+estadistica4 xs encuest = do
+  let encuesta = read encuest
+  let leni = div (length (xs !! encuesta)) 2
+  let lens = show leni
+  print ("La encuesta " ++ encuest ++ " posee " ++ lens ++ " preguntas")
 
 -- Menús
 opciones3 :: IO ()
@@ -272,7 +278,8 @@ opciones3 = do
   print "1. Estadistica 1 el promedio de respuesta de las preguntas"
   print "2. Estadistica 2 cantidad de veces respondida una encuesta"
   print "3. Estadistica 3 cantidad de encuestas creadas"
-  print "4. Atras (Menu principal)"
+  print "4. Estadistica 4 cantidad de preguntas que contiene una encuesta"
+  print "5. Atras (Menu principal)"
 
 menuEstadisticas :: [[[String]]] -> [[[String]]] -> IO ()
 menuEstadisticas xs respuestas = do
@@ -283,7 +290,8 @@ menuEstadisticas xs respuestas = do
     print "Estadistica 1 el promedio de respuesta de las preguntas"
     print ("Ingrese la encuesta a utilizar")
     re <- getLine
-    estadistica1 (listaRespuestasDeEncuesta respuestas re) 0
+    let lis = unirLista (listaRespuestasDeEncuesta respuestas re)
+    estadistica1 lis 0
     menuEstadisticas xs respuestas
   else if (r == "2") then do
     print "Estadistica 2 cantidad de veces respondida una encuesta"
@@ -296,9 +304,15 @@ menuEstadisticas xs respuestas = do
     estadistica3 respuestas
     menuEstadisticas xs respuestas
   else if (r == "4") then do
+    print "Estadistica 3 cantidad de preguntas que contiene una encuesta"
+    print ("Ingrese la encuesta a utilizar")
+    re <- getLine
+    estadistica4 xs re
+    menuEstadisticas xs respuestas
+  else if (r == "5") then do
     print "Atras"
     menu0 xs respuestas
-    print ""
+    putStr ""
   else
     menuEstadisticas xs respuestas
 
@@ -358,7 +372,6 @@ menu0 a respuestas = do
     menu2 a respuestas
   else if (r == "3") then do
     print ("Escogio3 Estadisticas")
-    -- Estadisticas()----------------------
     menuEstadisticas a respuestas
     menu0 a respuestas
   else if (r == "4") then do
@@ -380,11 +393,9 @@ main = do
 -- Datos quemados
 -- estadistica1 respuestas 0 -- usa map y lambda
   -- menu0 [] []
-  menu0 e []
-  
-  print ""
-  
-  -- [[]]
+  menu0 e r
+  putStr ""
+
 -- Cuando se finaliza el programa.
 fin :: IO [[[String]]]
 fin = do
