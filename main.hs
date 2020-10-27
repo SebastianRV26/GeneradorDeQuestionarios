@@ -1,10 +1,13 @@
 
+
 ------------- Formato de las preguntas  -----------------
 -- [[[preguntas: Pares], [respuestas: impares]]]
 -- [[["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]]
 e :: [[[String]]]
 e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
 
+resp :: [[[String]]]
+resp = [[["0", "r5", "r2"]],[["0","r4", "r1"]]]
 ----------------------- Functions -----------------------
 
 -- Función recuersiva para agregar respuestas
@@ -162,6 +165,20 @@ responderEncuestaAutomatica xs respuestas = do
 
 -- Estadística
 -- 3 variables de interes
+validar :: [[String]] -> String -> [String]
+validar xs encuesta = do
+  if ((head (xs !! 0)) == encuesta) then
+    tail (xs !! 0)
+  else
+    []
+
+-- [[["0","r5","r2"],["0","r4","r1"]]] -> [["r5","r2"],["r4","r1"]]
+listaRespuestasDeEncuesta :: [[[String]]] -> String -> [[String]]
+listaRespuestasDeEncuesta xs encuesta = map (\x -> validar x encuesta) xs
+
+-- [["r5","r2"],["r4","r1"]] -> 0 -> ["r5","r4"]
+respuestasDePregunta :: [[String]] -> Int -> [String]
+respuestasDePregunta xs index = map (\x -> (x !! index)) xs
 
 -- Primer estadística
 -- @param xs: lista de preguntas
@@ -170,16 +187,38 @@ responderEncuestaAutomatica xs respuestas = do
 
 --calc1 :: [Integer] -> [Integer]
 --calc1 xs = map 
+-- cuantas veces aparece un elemento en una lista
+apariciones :: [String] -> String -> Int
+apariciones xs element = do
+  if (xs == []) then do
+    0
+  else do
+    if ((head xs) ==  element) then do
+      1 + (apariciones (tail xs) element)
+    else do
+      0 + (apariciones (tail xs) element)
+
+estadistica1Aux :: [String] -> [String] -> IO ()
+estadistica1Aux xs pos = do
+  let len = apariciones xs (head pos)
+  let media = (div len (length xs))
+  let m = show media
+  print ("La media del elemento " ++ (head pos) ++ " es " ++ m)
+  estadistica1Aux xs (tail pos) -- Llamar
+
+-- El promedio de la cantidad de preguntas de una encuesta
+-- Cuantas veces se respondió la encuesta
 
 -- Sacar la media de todas las preguntas 
---estadistica1 :: [[[String]]] -> [[Int]] -> Int -> IO ()
---estadistica1 xs respuestas numQuestion = map (\x -> x !! numQuestion) respuestas
+--estadistica1 :: [[String]] -> IO ()
+--estadistica1 respuestas = map
   --(filter (==numQuestion) xs)
+
 
 -- Menús
 opciones3 :: IO ()
 opciones3 = do
-  print "1. Estadística 1 el promedio de las preguntas"
+  print "1. Estadística 1 el promedio de respuesta de las preguntas"
   print "2. Estadística 2"
   print "3. Estadística 3"
   print "4. Atras (Menu principal)"
@@ -190,15 +229,21 @@ menuEstadisticas xs respuestas = do
   opciones3
   r <- getLine
   if (r == "1") then do
-    print "Estadística 1"
---    estadistica1 respuestas
+    print "Estadística 1 el promedio de respuesta de las preguntas"
+    print ("Ingrese la encuesta a utilizar")
+    re <- getLine
+--    estadistica1 (listaRespuestasDeEncuesta xs respuestas re)
     menuEstadisticas xs respuestas
   else if (r == "2") then do
     print "Estadística 2"
+    print ("Ingrese la encuesta a utilizar")
+    re <- getLine
 --    estadistica1 respuestas
     menuEstadisticas xs respuestas
   else if (r == "3") then do
     print "Estadística 3"
+    print ("Ingrese la encuesta a utilizar")
+    re <- getLine
 --    estadistica1 respuestas
     menuEstadisticas xs respuestas
   else if (r == "4") then do
