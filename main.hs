@@ -3,11 +3,9 @@
 -- [[[preguntas: Pares], [respuestas: impares]]]
 -- [[["Pregunta1"], ["Respuesta1", "Respuesta2"], ["Pregunta2"], ["Respuesta1", "Respuesta2"]]]
 e :: [[[String]]]
-e = [[["p1"],["r1","r2", "r3", "r4", "r5"],["p2"],["r1","r2"]],[["q2p1"],["r1","r2"],["q2p2"],["r1","r2"]]]
-
+e = [[["Cuanto tiempo dedicas todos los dias a la tarea?"],["Menos de 2 horas","2-3 horas","3-4 horas","4-5 horas","Mas de 5 horas"],["Prefiere las clases virtuales o presenciales?"],["Virtuales","Presenciales"],["Tu maestro te anima a desempenarte mejor?"],["Si, todo el tiempo","Solo a veces","No, en absoluto"]],[["Se vio afectado economicamente por la pandemia?"],["Si","No"],["Cumple la cuarentena?"],["Si","No"],["Hace ejercicio en su casa?"],["Si","No"],["Desea que termine la pandemia?"],["Si","No"]]]
 r :: [[[String]]]
-r = [[["0","r4","r2"]],[["0","r1","r3"]], [["0","r4","r1"]], [["0","r3","r1"]], [["0","r5","r4"]]]
-
+r = [[["0","Mas de 5 horas","Presenciales","Si, todo el tiempo"]],[["0","4-5 horas","Presenciales","Si, todo el tiempo"]],[["1","Si","Si","Si","Si"]],[["1","Si","Si","No","Si"]],[["1","Si","No","No","Si"]]]
 ----------------------- Functions -----------------------
 
 -- Función recuersiva para agregar respuestas
@@ -301,7 +299,7 @@ menuEstadisticas xs respuestas = do
     menuEstadisticas xs respuestas
   else if (r == "3") then do
     print "Estadistica 3 cantidad de encuestas creadas"
-    estadistica3 respuestas
+    estadistica3 xs
     menuEstadisticas xs respuestas
   else if (r == "4") then do
     print "Estadistica 3 cantidad de preguntas que contiene una encuesta"
@@ -392,7 +390,7 @@ main :: IO ()
 main = do
 -- Datos quemados
 -- estadistica1 respuestas 0 -- usa map y lambda
-  -- menu0 [] []
+  --menu0 [] []
   menu0 e r
   putStr ""
 
