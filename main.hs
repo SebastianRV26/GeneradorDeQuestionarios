@@ -130,15 +130,12 @@ responderEncuestaAutomaticaAux :: [[String]] -> [String] -> IO [String]
 responderEncuestaAutomaticaAux listAux xs = do
   if ((null listAux) == False) then do
     if (length (head listAux) /= 1) then do
-      print ("Ingrese la posicion de su respuesta")
-      print ("0")
       let pos = "0"
       let index = read pos ::Int
       let lr = head listAux !! index
       let lra = (xs ++ [lr])
       responderEncuestaAutomaticaAux (tail listAux) lra
     else do
-      print (head listAux !! 0)
       responderEncuestaAutomaticaAux (tail listAux) xs
   else 
     return (xs)
@@ -389,7 +386,6 @@ menu0 a respuestas = do
 main :: IO ()
 main = do
 -- Datos quemados
--- estadistica1 respuestas 0 -- usa map y lambda
   --menu0 [] []
   menu0 e r
   putStr ""
