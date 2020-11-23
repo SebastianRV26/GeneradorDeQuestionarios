@@ -12,7 +12,7 @@ r = [[["0","Mas de 5 horas","Presenciales","Si, todo el tiempo"]],[["0","4-5 hor
 -- @param xs: lista 
 agregarRespuestas1 :: [String] -> IO [String]
 agregarRespuestas1 xs = do
-  putStr "\t Ingresanndo respuesta\n"
+  putStr "\t Ingresando respuesta\n"
   b <- getLine
   let x = xs ++ [b]
   print "Desea agregar otra respuesta? (y / n)"
@@ -30,7 +30,7 @@ agregarRespuestas2 num xs = do
   if (num == 0) then do
     return xs
   else do
-    putStr "\t Ingresanndo respuesta\n"
+    putStr "\t Ingresando respuesta\n"
     b <- getLine
     let x = xs ++ [b]
     agregarRespuestas2 (num - 1) x
@@ -39,7 +39,7 @@ agregarRespuestas2 num xs = do
 -- @param xs: lista 
 agregarPregunta :: [[String]] -> IO [[String]]
 agregarPregunta xs = do
-  putStr "\t Ingresanndo pregunta\n"
+  putStr "\t Ingresando pregunta\n"
   b <- getLine
   let x = xs ++ [[b]]
   print ("Ingrese el tipo de respuesta: 1. Escala del 1 al 5, 2. Respuestas con cantidad variable")
